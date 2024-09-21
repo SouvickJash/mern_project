@@ -1,0 +1,26 @@
+.loader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* Adjust as needed to center the spinner */
+  color: rgb(22, 91, 188);
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+  height: 84px;
+  width: 65px;
+}
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.addicon1 {
+  height: 68px;
+  width: 63px;
+}

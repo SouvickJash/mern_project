@@ -10,6 +10,7 @@ const createUser = async (req, res) => {
     //    const user=new userModel({
     //     name,email,phone,city,pin
     //    })
+    // return
     const user = new userModel(req.body); //this is easyest
     const result = await user.save();
     return res.status(201).json({
@@ -96,73 +97,58 @@ const deleteUser = async (req, res) => {
 
 // login api
 const loginUser = async (req, res) => {
-  console.log(req.body);
-  const { email, password } = req.body;
-  if (!email || !password) {
-    console.log("Plz fill up details");
-    return res.status(400).json({
-      error: "plz fill up your details",
-    });
-  } else {
-    try {
-      const user = await userModel.findOne({
-        email: email,
+  try {
+    const { email, password } = req.body;
+
+    // Find user by email
+    const getUser = await userModel.findOne({ email: email });
+
+    // Check if user exists
+    if (!getUser) {
+      return res.status(404).json({
+        status: false,
+        message: "User not found",
       });
-      if (user == null) {
-        return res.status(404).json({
-          error: "Invalid emailid or password",
-          status: "404",
-        });
-      } else {
-        const userLogin = await userModel.findOne({
-          email: email,
-        });
-
-        if (userLogin) {
-          const isMatch = await bcrypt.compare(password, userLogin.password); //right
-
-          //create token
-          const token = await userLogin.generateAuthToken(); //right
-          console.log("The token part" + token);
-
-          res.cookie("jwt", token, {
-            //if i want
-            expires: new Date(Date.now() + 80000),
-            httpOnly: true,
-          });
-
-          if (!isMatch) {
-            console.log("plz send your correct password");
-            return res.status(400).json({
-              status: 400,
-              error: "Invalid emailid or password",
-            });
-          } else {
-            return res.status(200).json({
-              status: 200,
-              message: "login successfull",
-              info: [userLogin],
-              token: token,
-            });
-          }
-        } else {
-          return res.status(400).json({
-            status: 400,
-            error: "Invalid emailid or password",
-          });
-        }
-      }
-    } catch (e) {
-      console.log(e);
     }
-    console.log("sucess");
+
+    // Compare password (plain text vs hashed)
+    const isCheck = await bcrypt.compare(password, getUser.password); 
+
+    // Log comparison result (remove this in production)
+    console.log("Password match:", isCheck);
+
+    if (!isCheck) {
+      return res.status(401).json({
+        status: false,
+        message: "Invalid password",
+      });
+    }
+
+    // Generate JWT token if password is correct
+    const token = jwt.sign({ email: getUser.email }, "aaassdsdsds");
+    console.log("token",token);
+
+    // Send response with token and user data
+    return res.status(200).json({
+      status: true,
+      message: "Successfully logged in",
+      data: {
+        token: token,
+        user: getUser,
+      },
+    });
+  } catch (err) {
+    return res.status(500).json({
+      status: false,
+      message: err.message,
+    });
   }
 };
 
 // forget password
 const forgetPassword = async (req, res) => {
   try {
-    console.log(req.body)
+    console.log(req.body);
     const { city, email, newPassword } = req.body;
     const user = await userModel.findOne({ email, city });
     if (!user) {
@@ -171,7 +157,7 @@ const forgetPassword = async (req, res) => {
         message: "wrong Email or city name",
       });
     }
-    const newHeasedPassword = await bcrypt.hash(newPassword,10);
+    const newHeasedPassword = await bcrypt.hash(newPassword, 10);
     await userModel.findByIdAndUpdate(user._id, {
       password: newHeasedPassword,
     });
@@ -180,7 +166,7 @@ const forgetPassword = async (req, res) => {
       message: "Password Reset Successfully",
     });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     return res.status(500).json({
       status: false,
       message: error.message,

@@ -58,5 +58,5 @@ userSchema.pre("save",async function(next){
 
 
 userSchema.set("timestamps", true);
-const userModel=mongoose.model('crue_operation',userSchema);
+const userModel=mongoose.model('user',userSchema);
 module.exports=userModel;
