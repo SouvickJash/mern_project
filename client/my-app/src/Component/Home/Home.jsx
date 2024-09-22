@@ -3,7 +3,7 @@ import "../Css/Home.css";
 import axios from "axios";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -87,7 +87,9 @@ const Home = () => {
                 <td>{item.phone}</td>
                 <td>{item.city}</td>
                 <td>{item.pin}</td>
-                <td><button type="button" class="btn btn-primary btn-sm" >Update</button></td>
+               
+               
+                <td><Link to={`/edit/${item._id}`} type="button" class="btn btn-primary btn-sm">Update</Link></td>
                 <td><button type="button" class="btn btn-danger btn-sm" onClick={()=>deleteData(item._id)}>Delete</button></td>
               </tr>
             </>
