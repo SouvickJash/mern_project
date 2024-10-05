@@ -95,6 +95,35 @@ const deleteUser = async (req, res) => {
   }
 };
 
+// deleteMany
+const deleteUserMany = async (req, res) => {
+  try {
+    let arr = [];
+    arr = req.body.id;
+    console.log("++", arr);
+    if (arr.length > 0) {
+      for (let i = 0; i < arr.length; i++) {
+        await userModel.findByIdAndDelete(arr[i]);
+      }
+      return res.status(200).json({
+        status: true,
+        message: "Users deleted successfully",
+        // data:deleteData
+      });
+    } else {
+      return res.status(400).json({
+        status: false,
+        message: "No id provided",
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      status: false,
+      message: error.message,
+    });
+  }
+};
+
 // login api
 const loginUser = async (req, res) => {
   try {
@@ -112,7 +141,7 @@ const loginUser = async (req, res) => {
     }
 
     // Compare password (plain text vs hashed)
-    const isCheck = await bcrypt.compare(password, getUser.password); 
+    const isCheck = await bcrypt.compare(password, getUser.password);
 
     // Log comparison result (remove this in production)
     console.log("Password match:", isCheck);
@@ -126,7 +155,7 @@ const loginUser = async (req, res) => {
 
     // Generate JWT token if password is correct
     const token = jwt.sign({ email: getUser.email }, "aaassdsdsds");
-    console.log("token",token);
+    console.log("token", token);
 
     // Send response with token and user data
     return res.status(200).json({
@@ -182,6 +211,7 @@ module.exports = {
   editUser,
   updateUser,
   deleteUser,
+  deleteUserMany,
   loginUser,
   forgetPassword,
 };
